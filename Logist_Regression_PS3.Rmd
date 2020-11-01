@@ -1,0 +1,183 @@
+---
+title: "Prediction of the Popular Vote Outcome of the 2020 American Presidential Election "
+author: "Eryan Gu, Jiaqi Liu, Ruichen Lu, Xinyun Zhang"
+date: "November 2, 2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+# Loading in the cleaned survey Data
+survey_data <- read_csv("~/survey_data.csv")
+
+# Loading in the cleaned census Data
+census_data <- read_csv("~/census_data.csv")
+
+
+```
+
+# Model
+
+Here we are interested in predicting the popular vote outcome of the 2020 American federal election ('Full Data Set'2020). To do this we are building a logistic regression model and employing a post-stratification technique. In the following sub-sections we will describe the model specifics and the post-stratification calculation.
+
+
+### Model Specifics
+We will be using R studio to create a logistic regression model to model the proportion of voters who will vote for Donald Trump. Logistic regression is a statistical model that in its basic form uses a logistic function to model a binary response variable. Since the differences of ages would affect an individuals vote in the election, we will be using age a predictor variable to our logistic regression model, which in our case will be represented by a numeric value. At different age periods, the way of thinking may change; however, we decided against using age group in place of age. Age, in terms of increases per one unit, would better reflect how voting preferences of an individual may differ. We also decided as predictors: gender and state, which are recorded as categorical responses, to model the probability of voting for Donald Trump. Since males and females may have different perspectives overall, we assume that males and females may also have differing voting preferences. In addition, since Trump's campaign promises would not be equally beneficial to each state, the state where an individual resides in can also be viewed as influential to ones voting preferences. Therefore, the logistic regression model we are using is:
+
+$$ log(\frac{p}{1-p}) = \beta_0+\beta_1  x_{age} + \beta_2x_{Male} + \beta_3x_{State}$$
+
+Where $p$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the change in log odds of voting for Donald Trump at age 0. Additionally, $\beta_1$ represents the slope of age in the model. Hence, for every one unit increase in age, we expect a $\beta_1$ increase in the log odds of voting for Donald Trump. $\beta_2$ is the slope of male while for every one unit increase in number of male, we expect the log odds of voting for Donald Trump to increase by $\beta_2$. Lastly, $\beta_3$ represents the slope of each state, we expect a $\beta_3$ increase in the log odds of voting for Donald Trump.
+
+```{r, include=FALSE}
+
+# Creating the Model
+model <- glm(vote_trump ~ age + gender + state, 
+            data=survey_data, family="binomial")
+
+
+# Model Results (to Report in Results section)
+summary(model)
+
+
+```
+
+
+### Post-Stratification 
+
+In order to estimate the proportion of voters who will vote for Donald Trump we need to perform a post-stratification analysis. A post-stratification means to adjust the sampling weights so that they sum to the population sizes within each post-stratum. Importantly, post-stratification tends to perform smaller variance estimates. Here we create cells based on different "age", "state" and "gender". Using the model described in the previous sub-section we will estimate the proportion of voters in each "age", "state" and "gender" bins. Our choice of including "age", "state" and "gender" variables is because these three variables are most likely to influence voter outcomes which are explained in context in the previous sub-section. We will then weigh each proportion estimate (within each bin) by the respective population size of that bin and sum those values and divide that by the entire population size. 
+
+```{r, echo=FALSE}
+census_data<- census_data %>% rename(gender = sex) %>% mutate(gender = ifelse(gender == "male","Male","Female"))
+
+
+library(dplyr)
+census_data<- census_data %>% rename(state = stateicp) %>%
+  mutate(state = case_when(state == "alabama" ~ "AL",
+                           state == "arizona" ~ "AZ",
+                           state == "arkansas" ~ "AR",
+                           state == "california" ~ "CA",
+                           state == "colorado" ~ "CO",
+                           state == "connecticut" ~ "CT",
+                           state == "district of columbia" ~ "DC",
+                           state == "delaware" ~ "DE",
+                           state == "florida" ~ "FL",
+                           state == "georgia" ~ "GA",
+                           state == "hawaii" ~ "HI",
+                           state == "idaho" ~ "ID",
+                           state == "illinois" ~ "IL",
+                           state == "indiana" ~ "IN",
+                           state == "iowa" ~ "IA",
+                           state == "kansas" ~ "KS",
+                           state == "kentucky" ~ "KY",
+                           state == "louisiana" ~ "LA",
+                           state == "maine" ~ "ME",
+                           state == "maryland" ~ "MD",
+                           state == "massachusett" ~ "MA",
+                           state == "michigan" ~ "MI",
+                           state == "minnesotat" ~ "MN",
+                           state == "montana" ~ "MT",
+                           state == "mississippi" ~ "MS",
+                           state == "missouri" ~ "MO",
+                           state == "nebraska" ~ "NE",
+                           state == "nevada" ~ "NV",
+                           state == "new hampshir" ~ "NH",
+                           state == "new jersey" ~ "NJ",
+                           state == "new mexico" ~ "NM",
+                           state == "new york" ~ "NY",
+                           state == "north carolina" ~ "NC",
+                           state == "north dakota" ~ "ND",
+                           state == "ohio" ~ "OH",
+                           state == "oklahoma" ~ "OK",
+                           state == "oregon" ~ "OR",
+                           state == "pennsylvania" ~ "PA",
+                           state == "puerto rico" ~ "RI",
+                           state == "south carolina" ~ "SC",
+                           state == "south dakota" ~ "SD",
+                           state == "tennessee" ~ "TN",
+                           state == "texas" ~ "TX",
+                           state == "utah" ~ "UT",
+                           state == "virginia" ~ "VA",
+                           state == "washington" ~ "WA",
+                           state == "vermont" ~ "VT",
+                           state == "wisconsin" ~ "WI",
+                           state == "west virginia" ~ "WV",
+                           state == "wyoming" ~ "WY"))
+
+
+#Census age in 2018
+census_data <- census_data %>%
+  drop_na()%>%
+  mutate(age = age + 2)
+
+
+# Here I will perform the post-stratification calculation
+census_data$estimate <-
+  model %>%
+  predict(newdata = census_data, type = "response")
+
+write_csv(census_data, "new_census_data.csv")
+
+
+```
+
+
+# Results
+
+```{r, echo=FALSE}
+census_data %>% 
+  filter(age >= 18) %>%
+  mutate(alp_predict_prop = estimate*n) %>%
+  summarise(alp_predict = sum(alp_predict_prop)/sum(n))
+```
+
+```{r, echo=FALSE}
+broom::tidy(model)
+```
+
+We predict that the proportion of voters who will advocate and vote for Donald Trump to be 0.477. This prediction is based on our post-stratification calculation of the proportion of voters who will support Donald Trump modeled by a logistic regression model, which accounted for age, genderMale, and the state each person lives in. From the above post-stratification analysis, age, genderMale and some of states such as stateCT, stateVT are statistically significant. The logistic equation can be written as $$ log(\frac{p}{1-p}) = -0.37277310+0.01481923x_{age} + 0.54945904x_{Male} + \beta_3x_{State}$$ 
+For every one unit increase in age, the log odds of voting for Donald Trump  increases by 0.015. Plus, for a one unit increase in total number of male, the log odds of voting for Donald Trump increases by 0.549.
+
+# Discussion
+
+### Summary
+We were interested in seeing the popular vote outcome of the 2020 American federal election. To begin with, a logistic regression model for a binary response variable was utilized to demonstrate the proportion of voters who will vote for Donald Trump. We chose age, gender and states to be predictors for our model as these three variables were likely to be influencial to voters' outcome. From there, we began to estimate the proportion of voters who will vote for Donald Trump through a post-stratification analysis. By adjusting weights of samples within each post-stratum of predictors, we found that the estimated proportion of voters in favour of voting for Trump is 0.4770746.
+
+### Conclusions
+As the estimated proportion of voters in favour of voting for Trump is 0.4770746, we made a prediction that Trump will likely to lose the election; however, the predicted result was very close to 0.5, which is half proportion of voters. In addition, the logistic regression we use has high reliance on a proper presentation of data. Therefore, if other important variables appear, the result might be affected.
+
+### Weaknesses
+
+1. The variable “Gender” given in the data is binary, therefore we computed the logistic regression with response variable genderMale. However, the weakness is that some people might recognize themselves as bigender or gender non-conforming. At this point, the assumption of binarity is violated for the variable “Gender” is violated, and it can no longer be used in computing a logistic regression model.
+
+2. In the raw data set downloaded online, the information for the variable State is incomplete. Some states are left out like Alaska and etc. Then the analysis might not be comprehensive enough since the preferences of supporting of certain states is ignored in the first stage.
+
+3. A major limitation or weakness for the model used (logistic regression model) for analysis is that the relationship for response variable and independent variable is linear. In particular, if gender male does not have a linear relationship with the probability of voting for Donald Trump, the accuracy of the analysis could be heavily influenced.
+
+4. The analysis has the shortcomings in analyzing other possible factors that could influence the interactions between age, gender, state and the preference for Donald Trump. People with same age, gender and state making a choice of which candidate to select due to peers from one’s family. For instance, a person might have vote intention for Joe Biden but eventually vote for Donald Trump because all of his/her family members support Donald Trump.
+
+5. There are factors that could potentially alter the probability of voting for Donald Trump such as: race, ethnicity, or education level that is not yet discussed in the study.
+
+
+
+
+### Next Steps
+
+In the next steps of the analysis, some improvements could be made to complement the conclusions of this report as well as making a follow-up survey.
+1.The survey could be made more precisely by including the choices for genders appropriately. The survey could be delivered through multiple channels and cover every state in the U.S.
+
+2.Other factors that impact the preference of voters should be noted and considered for a more precise analysis. We could add more variables into the model like whether the person is employed because the two candidates might have different policies on social welfare. In addition, people with different education level can have different interpretations on two candidates’ campaign promises. Therefore, a subsequent study can be made to address those factors.
+
+3.We could detect the outliners and influential cases and eliminate them from our dataset in order to have a more accurate prediction. 
+
+4.A post-hoc analysis could be made after the actual election results is released. If the actual result is different from our prediction, we can further identify is there is any misleading conducts in our study.
+
+# References
+1. Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from [URL].
+
+2. Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 [dataset]. Minneapolis, MN: IPUMS, 2020. https://doi.org/10.18128/D010.V10.0
+
+
