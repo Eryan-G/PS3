@@ -8,6 +8,7 @@ output:
   pdf_document: default
 ---
 
+GitHub URL:https://github.com/Eryan-G/PS3
 ```{r setup, include=FALSE}
 library(tidyverse)
 
@@ -180,5 +181,9 @@ In the next steps of the analysis, some improvements could be made to complement
 1. Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from [URL].
 
 2. Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 [dataset]. Minneapolis, MN: IPUMS, 2020. https://doi.org/10.18128/D010.V10.0
+
+3. Logistic Regression in R Tutorial. (n.d.). DataCamp Community. https://www.datacamp.com/community/tutorials/logistic-regression-R
+
+4. Democracy Fund. (2020, September 10). New: Second Nationscape Data Set Release [Dataset]. https://www.voterstudygroup.org/publication/nationscape-data-set
 
 
