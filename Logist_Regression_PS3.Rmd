@@ -167,13 +167,14 @@ As the estimated proportion of voters in favour of voting for Trump is 0.4770746
 ### Next Steps
 
 In the next steps of the analysis, some improvements could be made to complement the conclusions of this report as well as making a follow-up survey.
-1.The survey could be made more precisely by including the choices for genders appropriately. The survey could be delivered through multiple channels and cover every state in the U.S.
 
-2.Other factors that impact the preference of voters should be noted and considered for a more precise analysis. We could add more variables into the model like whether the person is employed because the two candidates might have different policies on social welfare. In addition, people with different education level can have different interpretations on two candidates’ campaign promises. Therefore, a subsequent study can be made to address those factors.
+1. The survey could be made more precisely by including the choices for genders appropriately. The survey could be delivered through multiple channels and cover every state in the U.S.
 
-3.We could detect the outliners and influential cases and eliminate them from our dataset in order to have a more accurate prediction. 
+2. Other factors that impact the preference of voters should be noted and considered for a more precise analysis. We could add more variables into the model like whether the person is employed because the two candidates might have different policies on social welfare. In addition, people with different education level can have different interpretations on two candidates’ campaign promises. Therefore, a subsequent study can be made to address those factors.
 
-4.A post-hoc analysis could be made after the actual election results is released. If the actual result is different from our prediction, we can further identify is there is any misleading conducts in our study.
+3. We could detect the outliners and influential cases and eliminate them from our dataset in order to have a more accurate prediction. 
+
+4. A post-hoc analysis could be made after the actual election results is released. If the actual result is different from our prediction, we can further identify is there is any misleading conducts in our study.
 
 # References
 1. Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from [URL].
