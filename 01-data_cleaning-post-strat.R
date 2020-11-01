@@ -1,8 +1,8 @@
 #### Preamble ####
-# Purpose: Prepare and clean the survey data downloaded from [...UPDATE ME!!!!!]
-# Author: Rohan Alexander and Sam Caetano [CHANGE THIS TO YOUR NAME!!!!]
+# Purpose: Prepare and clean the survey data downloaded from IPUMS
+# Author: Eryan Gu, Jiaqi Liu, Ruichen Lu, Xinyun Zhang
 # Data: 22 October 2020
-# Contact: rohan.alexander@utoronto.ca [PROBABLY CHANGE THIS ALSO!!!!]
+# Contact: eryan.gu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: 
 # - Need to have downloaded the ACS data and saved it to inputs/data
@@ -13,8 +13,8 @@
 library(haven)
 library(tidyverse)
 # Read in the raw data.
-# setwd("C:/Users/Sammi-Jo/Desktop/PS3")
-raw_data <- read_dta("usa_00002.dta.gz")
+setwd("C:/Users/admin/Desktop/PS3")
+raw_data <- read_dta("usa_00001.dta")
 
 
 # Add the labels
